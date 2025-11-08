@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="static-title">NovaSeek 搜尋</title> 
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* 品牌顏色定義 */
+        :root {
+            --nova-blue: #185ADB; 
+            --nova-blue-hover: #1448A8;
+            --background-color: #ffffff;
+            --border-color: #dfe1e5;
+        }
+
+        /* 全局樣式 */
+        body { 
+            font-family: 'Roboto', 'Noto Sans TC', sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background-color: var(--background-color); 
+            color: #222; 
+            line-height: 1.6;
+        }
+        .container { 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            padding: 0 20px; 
+        }
+        
+        /* 1. 標頭和導航欄：靠左對齊設計 */
+        .header { 
+            padding: 15px 0; 
+            border-bottom: 1px solid #ebebeb; 
+            background-color: var(--background-color);
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+        }
+        .header-content {
+            display: flex;
+            align-items: center;
+            max-width: 900px; 
+            margin: 0; 
+        }
+
+        /* Logo */
+        .logo {
+            font-size: 20px; 
+            font-weight: 500;
+            color: var(--nova-blue); 
+            margin-right: 25px;
+            text-decoration: none; 
+            white-space: nowrap; 
+        }
+        /* 搜尋欄容器 */
+        .search-area {
+            display: flex;
+            align-items: center;
+            flex-grow: 1; 
+            max-width: 550px;
+        }
+        .search-form { 
+            display: flex; 
+            width: 100%; 
+            border: 1px solid var(--border-color);
+            border-radius: 24px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+            transition: box-shadow 0.3s;
+        }
+        .search-form:hover {
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+        }
+        #search-input { 
+            flex-grow: 1; 
+            padding: 10px 15px; 
+            border: none;
+            background: none;
+            font-size: 16px; 
+            outline: none; 
+        }
+        .mic-button {
+            background: none;
+            border: none;
+            padding: 10px 15px;
+            color: #5f6368; 
+            cursor: pointer;
+            font-size: 16px;
+            transition: color 0.2s;
+        }
+        .mic-button:hover { color: #222; }
+
+        /* 登入按鈕容器 - 靠右定位 */
+        .auth-container {
+            flex-grow: 1; 
+            display: flex;
+            justify-content: flex-end;
+            margin-left: 20px;
+        }
+        /* 登入按鈕 - 圓角設置 */
+        .auth-button {
+            padding: 8px 15px;
+            background-color: var(--nova-blue);
+            border: none;
+            border-radius: 20px; /* 圓角 */
+            text-decoration: none;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        /* 2. 標籤頁 (Tabs) 導航 */
+        .tabs-nav {
+            max-width: 900px;
+            margin: 0; 
+            border-bottom: 1px solid #e8e8e8;
+            padding-left: 175px; 
+        }
+        .tab-button {
+            background: none;
+            border: none;
+            padding: 12px 18px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #5f6368;
+            margin-right: 15px;
+            transition: color 0.2s;
+            position: relative;
+        }
+        .tab-button.active {
+            color: var(--nova-blue);
+        }
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--nova-blue);
+        }
+
+        /* 3. 內容區域：靠左對齊結果 */
+        .content-area {
+            max-width: 900px; 
+            margin: 0; 
+            padding-top: 20px;
+        }
+        .search-meta {
+            padding-left: 175px; 
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #70757a;
+        }
+        .results-container {
+            padding-left: 175px; 
+        }
+
+        /* 結果樣式 */
+        .result-item { 
+            padding: 0;
+            margin-bottom: 25px; 
+            max-width: 650px; 
+        }
+        .result-item h3 { 
+            margin-top: 0; 
+            margin-bottom: 4px; 
+            font-size: 20px; 
+            font-weight: 400;
+        }
+        .result-item a { color: #1a0dab; text-decoration: none; }
+        .result-item a:hover { text-decoration: underline; }
+        .result-item .url { color: #006621; font-size: 14px; margin-bottom: 6px; display: block; }
+        .result-item p { color: #545454; line-height: 1.5; font-size: 14px; }
+        .image-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+        .image-item { border-radius: 4px; overflow: hidden; }
+        .image-item img { width: 100%; height: 120px; object-fit: cover; }
+        #status-message { 
+            padding-left: 175px; 
+            text-align: left; 
+            margin-top: 20px; 
+            font-size: 14px; 
+            color: #70757a;
+        }
+
+        /* 4. 分頁樣式 */
+        #pagination { 
+            display: flex; 
+            justify-content: flex-start; /* 靠左對齊 */
+            margin-top: 40px; 
+            padding-left: 175px; 
+            align-items: center; 
+        }
+        .page-button { 
+            background: none;
+            border: none;
+            padding: 8px 12px;
+            margin: 0 5px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            color: #1a0dab; 
+            text-decoration: none; 
+            border-radius: 4px;
+            transition: background-color 0.2s;
+            line-height: 1;
+            min-width: 30px; 
+            text-align: center;
+            display: inline-block;
+        }
+        .page-button.number { color: #5f6368; }
+        .page-button.number:hover { background-color: #f0f0f0; }
+        .page-button.active {
+            color: var(--nova-blue); 
+            font-weight: 700;
+            position: relative;
+        }
+        .page-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70%;
+            height: 3px;
+            background-color: var(--nova-blue);
+            border-radius: 2px;
+        }
+        .page-button.disabled { 
+            opacity: 0.5;
+            cursor: not-allowed; 
+            color: #70757a !important;
+        }
+        
+        /* 響應式調整 */
+        @media (max-width: 768px) {
+            .header-content { flex-wrap: wrap; margin: 0 auto; }
+            .logo { display: none; } 
+            .search-area { width: 100%; order: 2; margin-top: 10px; }
+            .auth-container { order: 1; flex-grow: 0; }
+            .auth-button { border-radius: 4px; }
+            .tabs-nav { padding-left: 0; max-width: 100%; }
+            .content-area, .results-container, .search-meta, #status-message, #pagination { padding-left: 10px; padding-right: 10px; max-width: 100%; justify-content: flex-start; }
+            .image-grid { grid-template-columns: repeat(2, 1fr); }
+            .result-item { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    
+<div class="header">
+    <div class="container header-content">
+        <a href="https://www.novaseek.org" class="logo">NovaSeek</a>
+        
+        <div class="search-area">
+            <form id="search-form" class="search-form" onsubmit="return false;">
+                <input type="text" id="search-input" placeholder="搜尋..." required>
+                <button type="button" class="mic-button" id="mic-button" title="語音輸入">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <button type="submit" id="search-button" style="display:none;">搜尋</button>
+            </form>
+        </div>
+
+        <div class="auth-container">
+            <a href="https://accounts.novaseek.org/?redirect=https%3A%2F%2Fwww.novaseek.org%2F" class="auth-button">登入</a>
+        </div>
+    </div>
+</div>
+
+<div class="tabs-nav">
+    <button class="tab-button active" data-search-type="web">全部</button>
+    <button class="tab-button" data-search-type="image">圖片</button>
+</div>
+
+<div class="container content-area">
+    <div id="status-message">請在上方輸入關鍵字開始搜尋。</div>
+
+    <div class="results-container">
+        <div id="image-results-container" style="display:none;">
+            <div id="image-results" class="image-grid"></div>
+        </div>
+
+        <div id="results"></div>
+        
+        <div id="pagination"></div>
+    </div>
+</div>
+
+<script>
+    // ----------------------------------------------------
+    // 核心配置：請將此處替換為您的實際金鑰和 CX ID
+    // ----------------------------------------------------
+    const GOOGLE_API_KEY = "AIzaSyBJxvljB9nWFHT8Jml3NI-XDDJZfFB3nMk";
+    const GOOGLE_CX = "83e53df96e5124e3b";
+    const RESULTS_PER_PAGE = 10;
+    
+    // *** 備援服務 URL：請在此處替換為您的後端爬蟲伺服器位址 ***
+    const FALLBACK_API_URL = "https://your-backend-api.com/fallback-search"; 
+
+    // ----------------------------------------------------
+    // DOM 變數
+    // ----------------------------------------------------
+    const searchForm = document.getElementById('search-form');
+    const searchInput = document.getElementById('search-input');
+    const staticTitle = document.getElementById('static-title');
+    const resultsDiv = document.getElementById('results');
+    const imageResultsContainer = document.getElementById('image-results-container');
+    const imageResultsDiv = document.getElementById('image-results');
+    const paginationDiv = document.getElementById('pagination');
+    const statusMessageDiv = document.getElementById('status-message');
+    const micButton = document.getElementById('mic-button');
+    const tabButtons = document.querySelectorAll('.tab-button');
+    
+    let currentQuery = '';
+    let currentPage = 1;
+    let totalResults = 0;
+    let currentTab = 'web'; // 預設為 'web' (全部)
+
+    // ----------------------------------------------------
+    // 語音輸入功能 (骨架，需要 HTTPS 環境)
+    // ----------------------------------------------------
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+    
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.lang = 'zh-TW'; 
+
+        recognition.onstart = function() { micButton.classList.add('recording'); };
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            searchInput.value = transcript;
+            updateUrlAndSearch(transcript, 1); 
+        };
+        recognition.onend = function() { micButton.classList.remove('recording'); };
+
+        micButton.addEventListener('click', () => {
+            try {
+                recognition.start();
+            } catch (error) {
+                alert('語音輸入啟動失敗，請確保在 HTTPS 環境下並授予麥克風權限。');
+                console.error('Speech Recognition Error:', error);
+            }
+        });
+    } else {
+        micButton.style.display = 'none'; 
+    }
+
+    // ----------------------------------------------------
+    // 標籤頁 (Tabs) 切換邏輯
+    // ----------------------------------------------------
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const newType = button.getAttribute('data-search-type');
+            if (newType === currentTab) return; 
+
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            
+            currentTab = newType;
+
+            updateUrlAndSearch(currentQuery, 1); 
+        });
+    });
+    
+    // ----------------------------------------------------
+    // 備援搜尋函式：當 Google API 失敗時呼叫此處
+    // ----------------------------------------------------
+    function novaFallbackSearch(query) {
+        // *** 此處僅為前端提示。請在後端建立一個服務來接收此請求並執行爬蟲 ***
+        
+        // 1. 設置友善的狀態訊息
+        statusMessageDiv.innerHTML = `
+            <span style="color: #FF8C00; font-weight: 500;">
+                <i class="fas fa-robot"></i> NovaSeek 備援啟動：
+            </span>
+            <br>
+            主要服務配額用盡，正在啟用維基百科智能爬蟲備援服務。
+            <br>
+            <span style="font-size: 12px; color: #70757a;">
+                (提示：目前顯示模擬結果，請將備援後端服務部署至 ${FALLBACK_API_URL})
+            </span>
+        `;
+        
+        // 2. 顯示模擬結果（實際應由後端爬蟲返回）
+        resultsDiv.innerHTML = `
+            <div class="result-item">
+                <h3><a href="https://zh.wikipedia.org/wiki/${encodeURIComponent(query)}" target="_blank">維基百科：${query}</a></h3>
+                <span class="url">zh.wikipedia.org</span>
+                <p>這是一個模擬的維基百科結果。您的後端爬蟲服務將會抓取並格式化真實的條目摘要和連結。</p>
+            </div>
+        `;
+        
+        // 3. 清理與顯示
+        imageResultsContainer.style.display = 'none';
+        resultsDiv.style.display = 'block';
+        paginationDiv.innerHTML = '';
+    }
+
+    // ----------------------------------------------------
+    // 主要執行函式
+    // ----------------------------------------------------
+
+    async function executeSearch(query, start) {
+        if (!query) return;
+
+        currentQuery = query;
+        currentPage = Math.floor((start - 1) / RESULTS_PER_PAGE) + 1;
+
+        resultsDiv.innerHTML = '';
+        imageResultsDiv.innerHTML = '';
+        paginationDiv.innerHTML = '';
+        
+        if (currentTab === 'web') {
+            imageResultsContainer.style.display = 'none';
+        } else {
+            imageResultsContainer.style.display = 'grid'; 
+        }
+
+        statusMessageDiv.textContent = '搜尋中...';
+        staticTitle.textContent = `${query} - NovaSeek 搜尋`; 
+
+        let apiUrl;
+        if (currentTab === 'image') {
+            apiUrl = `https://www.googleapis.com/customsearch/v1?key=${GOOGLE_API_KEY}&cx=${GOOGLE_CX}&q=${encodeURIComponent(query)}&searchType=image&start=${start}&num=${RESULTS_PER_PAGE}`;
+        } else {
+            apiUrl = `https://www.googleapis.com/customsearch/v1?key=${GOOGLE_API_KEY}&cx=${GOOGLE_CX}&q=${encodeURIComponent(query)}&start=${start}&num=${RESULTS_PER_PAGE}`;
+        }
+
+        try {
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+            
+            if (!response.ok || data.error) {
+                const errorMessage = data.error ? data.error.message : `狀態碼 ${response.status}`;
+                
+                if (errorMessage.includes('Quota exceeded')) {
+                    // *** 關鍵：配額用盡時，切換到備援服務 ***
+                    novaFallbackSearch(query);
+                    return; 
+                } else {
+                    statusMessageDiv.textContent = `搜尋失敗：${errorMessage}。請檢查 API 設置或配額。`;
+                }
+                return;
+            }
+
+            if (currentTab === 'image') {
+                renderImageResults(data);
+            } else {
+                renderWebResults(data);
+            }
+            
+        } catch (error) {
+            statusMessageDiv.textContent = '連線錯誤，無法呼叫搜尋服務。';
+        }
+    }
+
+    // ----------------------------------------------------
+    // 渲染函式 (圖片/網頁)
+    // ----------------------------------------------------
+    function renderImageResults(data) {
+        resultsDiv.style.display = 'none';
+        imageResultsContainer.style.display = 'grid';
+        imageResultsDiv.innerHTML = '';
+        statusMessageDiv.textContent = '';
+        
+        if (!data.items || data.items.length === 0) {
+            statusMessageDiv.textContent = `找不到與「${currentQuery}」相關的圖片。`;
+            totalResults = 0;
+            renderPagination();
+            return;
+        }
+
+        totalResults = data.searchInformation ? parseInt(data.searchInformation.totalResults.replace(/,/g, '')) : 0;
+        statusMessageDiv.textContent = `找到約 ${data.searchInformation.formattedTotalResults} 項圖片結果。`;
+
+        data.items.forEach(item => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'image-item';
+            itemDiv.innerHTML = `
+                <a href="${item.image.contextLink}" target="_blank">
+                    <img src="${item.link}" alt="${item.title}" loading="lazy">
+                </a>
+            `;
+            imageResultsDiv.appendChild(itemDiv);
+        });
+
+        renderPagination(data);
+    }
+
+    function renderWebResults(data) {
+        imageResultsContainer.style.display = 'none';
+        resultsDiv.style.display = 'block';
+        resultsDiv.innerHTML = '';
+        statusMessageDiv.textContent = '';
+        
+        if (!data.items || data.items.length === 0) {
+            statusMessageDiv.textContent = `找不到與「${currentQuery}」相關的網頁結果。`;
+            totalResults = 0;
+            renderPagination();
+            return;
+        }
+
+        totalResults = data.searchInformation ? parseInt(data.searchInformation.totalResults.replace(/,/g, '')) : 0;
+        statusMessageDiv.textContent = `找到約 ${data.searchInformation.formattedTotalResults} 項網頁結果。`;
+
+        data.items.forEach(item => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'result-item';
+            itemDiv.innerHTML = `
+                <h3><a href="${item.link}" target="_blank">${item.title}</a></h3>
+                <span class="url">${item.displayLink}</span>
+                <p>${item.snippet}</p>
+            `;
+            resultsDiv.appendChild(itemDiv);
+        });
+
+        renderPagination(data);
+    }
+    
+    // ----------------------------------------------------
+    // 分頁及 URL 處理
+    // ----------------------------------------------------
+    
+    function renderPagination(data) {
+        paginationDiv.innerHTML = '';
+        if (totalResults === 0) return;
+
+        const maxPage = Math.min(10, Math.ceil(totalResults / RESULTS_PER_PAGE)); 
+        const maxDisplayPages = 5; 
+        
+        let startPage = Math.max(1, currentPage - Math.floor(maxDisplayPages / 2));
+        let endPage = Math.min(maxPage, startPage + maxDisplayPages - 1);
+
+        if (endPage - startPage + 1 < maxDisplayPages) {
+            startPage = Math.max(1, endPage - maxDisplayPages + 1);
+        }
+
+        // 上一頁按鈕
+        const prevButton = createPaginationButton('上一頁', currentPage > 1);
+        prevButton.onclick = () => { if (currentPage > 1) { updateUrlAndSearch(currentQuery, currentPage - 1); } };
+        if (currentPage === 1) prevButton.classList.add('disabled');
+        paginationDiv.appendChild(prevButton);
+
+        // 頁碼按鈕
+        for (let i = startPage; i <= endPage; i++) {
+            const pageButton = createPaginationButton(i, i !== currentPage);
+            pageButton.classList.add('number');
+            if (i === currentPage) {
+                pageButton.classList.add('active');
+            } else {
+                pageButton.onclick = () => updateUrlAndSearch(currentQuery, i);
+            }
+            paginationDiv.appendChild(pageButton);
+        }
+
+        // 下一頁按鈕
+        const nextButton = createPaginationButton('下一頁', currentPage < maxPage);
+        nextButton.onclick = () => { if (currentPage < maxPage) { updateUrlAndSearch(currentQuery, currentPage + 1); } };
+        if (currentPage === maxPage) nextButton.classList.add('disabled');
+        paginationDiv.appendChild(nextButton);
+    }
+
+    function createPaginationButton(text, isEnabled) {
+        const button = document.createElement('a');
+        button.className = 'page-button';
+        button.textContent = text;
+        button.href = 'javascript:void(0);'; 
+        if (!isEnabled) { button.classList.add('disabled'); }
+        return button;
+    }
+
+    function updateUrlAndSearch(query, page, type = currentTab) {
+        const start = (page - 1) * RESULTS_PER_PAGE + 1;
+        const params = new URLSearchParams(window.location.search);
+        params.set('q', query);
+        params.set('start', start);
+        params.set('tab', type); 
+
+        history.pushState(null, '', `?${params.toString()}`);
+        
+        executeSearch(query, start);
+        window.scrollTo(0, 0);
+    }
+
+    // ----------------------------------------------------
+    // 事件與初始化
+    // ----------------------------------------------------
+
+    searchForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const query = searchInput.value.trim();
+        if (query) {
+            updateUrlAndSearch(query, 1); 
+        }
+    });
+
+    function initializeSearch() {
+        const params = new URLSearchParams(window.location.search);
+        const query = params.get('q');
+        const start = parseInt(params.get('start')) || 1;
+        const tab = params.get('tab') || 'web';
+
+        currentTab = tab;
+        tabButtons.forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.getAttribute('data-search-type') === tab) {
+                btn.classList.add('active');
+            }
+        });
+
+        if (query) {
+            searchInput.value = query;
+            executeSearch(query, start);
+        } else {
+            staticTitle.textContent = 'NovaSeek 搜尋';
+            if (tab === 'image') {
+                 imageResultsContainer.style.display = 'grid';
+                 resultsDiv.style.display = 'none';
+            } else {
+                 imageResultsContainer.style.display = 'none';
+                 resultsDiv.style.display = 'block';
+            }
+        }
+    }
+
+    initializeSearch();
+    window.addEventListener('popstate', initializeSearch);
+
+</script>
+</body>
+</html>
